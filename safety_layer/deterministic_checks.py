@@ -20,7 +20,7 @@ See docs/01-supported-criterion.md for the rules these checks implement.
 import re
 
 NEGATION_WORDS = {
-    "not", "no", "don't", "dont", "never", "stop", "without", "n't",
+    "not", "no", "don't", "dont", "never", "without", "n't",
 }
 
 # Generic glosses per criterion Section 2.2: allowed without being "selected".
