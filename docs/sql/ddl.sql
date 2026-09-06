@@ -67,6 +67,38 @@ OPTIONS (
   description = 'Per-output scoring: predicted vs expected label, for computing benchmark metrics'
 );
 
+CREATE TABLE IF NOT EXISTS `safespeak.ground_truth` (
+  ground_truth_id   STRING NOT NULL     OPTIONS(description="Unique id, e.g. UUID"),
+  output_id         STRING NOT NULL     OPTIONS(description="FK to model_outputs.output_id"),
+  true_label        STRING NOT NULL     OPTIONS(description="Phrase-specific SUPPORTED/UNSUPPORTED verdict, judged against gold_intent directly rather than the scenario's static expected_label"),
+  reason            STRING              OPTIONS(description="Rationale for true_label"),
+  checker_model     STRING              OPTIONS(description="Which model ran the ground-truth check"),
+  prompt_version    STRING              OPTIONS(description="ground_truth_prompt.py version used"),
+  checked_at        TIMESTAMP           OPTIONS(description="When this ground-truth check was computed"),
+)
+OPTIONS (
+  description = 'Phrase-specific ground truth (independent of scenario risk category) used to isolate real safety-layer misses from expected_label measurement artifacts. See docs/01-supported-criterion.md section 6.1 and safety_layer/ground_truth_prompt.py for methodology and limitations.'
+);
+
+CREATE OR REPLACE VIEW `safespeak.fabrication_conditional_metrics` AS
+SELECT
+  s.model_name,
+  s.benchmark_run_id,
+  COUNT(*)                                                                    AS total_outputs,
+  COUNTIF(gt.true_label = 'UNSUPPORTED')                                      AS actual_fabrication_count,
+  ROUND(COUNTIF(gt.true_label = 'UNSUPPORTED') / COUNT(*), 4)                 AS fabrication_rate,
+  COUNTIF(gt.true_label = 'UNSUPPORTED' AND s.predicted_label = 'UNSUPPORTED') AS caught_count,
+  ROUND(
+    COUNTIF(gt.true_label = 'UNSUPPORTED' AND s.predicted_label = 'UNSUPPORTED')
+    / NULLIF(COUNTIF(gt.true_label = 'UNSUPPORTED'), 0), 4
+  )                                                                            AS fabrication_catch_rate,
+  COUNTIF(gt.true_label = 'UNSUPPORTED' AND s.predicted_label = 'SUPPORTED')   AS real_misses_count
+FROM `safespeak.scores` s
+JOIN `safespeak.model_outputs` mo ON s.output_id = mo.output_id
+JOIN `safespeak.ground_truth` gt ON s.output_id = gt.output_id
+GROUP BY s.model_name, s.benchmark_run_id
+ORDER BY s.benchmark_run_id DESC, s.model_name;
+
 CREATE OR REPLACE VIEW `safespeak.metrics_by_model` AS
 SELECT
   model_name,
