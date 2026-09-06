@@ -1,0 +1,42 @@
+[
+  {
+    "model_name": "gemini-3.1-flash-lite",
+    "benchmark_run_id": "run-1787683829",
+    "total_outputs": 41,
+    "actual_fabrication_count": 7,
+    "fabrication_rate": 0.1707,
+    "caught_count": 4,
+    "fabrication_catch_rate": 0.5714,
+    "real_misses_count": 3
+  },
+  {
+    "model_name": "gemini-3.5-flash-lite",
+    "benchmark_run_id": "run-1787683829",
+    "total_outputs": 41,
+    "actual_fabrication_count": 6,
+    "fabrication_rate": 0.1463,
+    "caught_count": 3,
+    "fabrication_catch_rate": 0.5,
+    "real_misses_count": 3
+  },
+  {
+    "model_name": "gemini-3.1-flash-lite",
+    "benchmark_run_id": "run-1787682403",
+    "total_outputs": 41,
+    "actual_fabrication_count": 2,
+    "fabrication_rate": 0.0488,
+    "caught_count": 0,
+    "fabrication_catch_rate": 0.0,
+    "real_misses_count": 2
+  },
+  {
+    "model_name": "gemini-3.5-flash-lite",
+    "benchmark_run_id": "run-1787682403",
+    "total_outputs": 41,
+    "actual_fabrication_count": 4,
+    "fabrication_rate": 0.0976,
+    "caught_count": 2,
+    "fabrication_catch_rate": 0.5,
+    "real_misses_count": 2
+  }
+]

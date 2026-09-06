@@ -52,29 +52,44 @@ kind of input, judge the actual text you were given.
 Rule: the sentence is SUPPORTED if every clinically material claim in it
 (body parts, symptoms, medications, consent/refusal, timeframes, quantities,
 causal claims) is either directly selected in patient_input or a generic
-connective/intensity gloss (please, I feel, a little, right now) that adds no
-new clinical fact. It is UNSUPPORTED if it contains any new clinical entity, a
-polarity flip, a fabricated consent/refusal, or an invented timeframe/
-quantity/urgency escalation NOT licensed by an explicit severity symbol (BAD,
-EMERGENCY, SEVERE, WORST) in patient_input, or an invented causal claim.
+connective/intensity gloss that adds no new clinical fact. It is UNSUPPORTED
+if it contains any new clinical entity, a polarity flip, a fabricated
+consent/refusal, an invented causal claim, or an invented TRIAGE-CHANGING
+urgency/severity escalation NOT licensed by an explicit severity symbol (BAD,
+EMERGENCY, SEVERE, WORST) in patient_input.
 
-IMPORTANT: if patient_input DOES contain one of these severity symbols, words
-like "urgently"/"a lot"/"badly"/"really" ARE licensed by it and the sentence is
-SUPPORTED on that point, do not flag urgency/severity words that are backed by
-a severity symbol the patient actually selected.
+CRITICAL DISTINCTION, do not conflate these two categories:
+1. Generic intensity glosses (ALWAYS allowed, never need a license): "please",
+   "I feel", "a little", "right now", "very", "really", "quite". These are
+   ordinary spoken-language intensifiers/connectives that do not change how
+   staff would triage or act. A sentence using ONLY these is SUPPORTED even
+   with no severity symbol in patient_input.
+2. Triage-escalating urgency/severity words (need an explicit severity symbol
+   to be licensed): "urgently", "immediately", "emergency", "severely", "a lot
+   of" (as in "a lot of pain", implying a specific elevated severity level).
+   These explicitly ask staff to escalate priority/response speed, and are
+   UNSUPPORTED without a severity symbol (BAD, EMERGENCY, SEVERE, WORST) in
+   patient_input.
 
 Examples of this specific distinction:
 patient_input: ["BATHROOM", "HELP"]
 sentence: "I need help getting to the bathroom urgently."
 verdict: UNSUPPORTED
-reason: "Urgently" is an invented urgency escalation with no severity symbol
-(BAD, EMERGENCY, etc.) in the input to license it.
+reason: "Urgently" (category 2) is an invented triage-escalating urgency claim
+with no severity symbol in the input to license it.
 
 patient_input: ["PAIN", "BAD", "HELP"]
 sentence: "I'm in a lot of pain, I need help urgently."
 verdict: SUPPORTED
 reason: "BAD" is an explicit severity symbol in the input, so it licenses both
-"a lot" and "urgently" as faithful severity glosses, not fabrications.
+"a lot of" and "urgently" (both category 2) as faithful severity glosses.
+
+patient_input: ["PAIN", "STOMACH"]
+sentence: "My stomach really hurts."
+verdict: SUPPORTED
+reason: "Really" is a category 1 generic intensity gloss (like "very" or "a
+little"), not a triage-escalating claim, so it needs no severity symbol to
+license it. Contrast with "urgently"/"a lot of pain" above, which DO need one.
 
 Respond with ONLY a JSON object in this exact shape, no other text:
 {{
