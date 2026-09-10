@@ -46,4 +46,4 @@ export const THEMES = [
   { id: "solarized-osaka", label: "solarized osaka", bg: "#00141a", caret: "#b58900", main: "#859900", sub: "#2aa198", subAlt: "#00222b", text: "#eee8d5", error: "#dc322f", errorExtra: "#9b225c" },
 ];
 
-export const DEFAULT_THEME_ID = "serika-dark";
+export const DEFAULT_THEME_ID = "horizon";

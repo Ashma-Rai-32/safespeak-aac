@@ -18,22 +18,24 @@
   only have one semantic "error" color) -- synthesized, not sourced.
 
   The :root block below is only the pre-JS fallback (first paint before
-  App.jsx's effect runs), set to serika dark's real values so there's no
-  flash of wrong colors.
+  App.jsx's effect runs), set to horizon's real values (the default theme,
+  see data/themes.js DEFAULT_THEME_ID) with the same derived surface/border/
+  danger-bg/success-bg blends applyTheme() computes at runtime, so there's no
+  visible flash of different colors once React hydrates.
 */
 
 :root {
-  --bg: #323437;
-  --surface: #3c3e42;
-  --sub-alt: #2c2e31;
-  --text: #d1d0c5;
-  --text-muted: #646669;
-  --border: #4a4c50;
-  --accent: #e2b714;
-  --danger: #ca4754;
-  --danger-bg: #3a2226;
+  --bg: #1c1e26;
+  --surface: #2a2c33;
+  --sub-alt: #17181f;
+  --text: #bbbbbb;
+  --text-muted: #bbbbbb;
+  --border: #3e4047;
+  --accent: #c4a88a;
+  --danger: #d55170;
+  --danger-bg: #3d2733;
   --success: #4ade80;
-  --success-bg: #223a2c;
+  --success-bg: #244136;
   --roundness: .5rem;
   --mono: "Roboto Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -127,6 +129,14 @@ body {
   color: var(--text);
   letter-spacing: -.01em;
   text-align: left;
+}
+
+.app-version {
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  vertical-align: middle;
+  margin-left: .3rem;
 }
 
 /* .app-header h1::before {

@@ -13,7 +13,7 @@ const THEME_STORAGE_KEY = "safespeak-theme";
 
 const SOCIAL_LINKS = [
   {
-    href: "https://github.com/Ashma-Rai-32",
+    href: "https://github.com/Ashma-Rai-32/safespeak-aac",
     label: "GitHub",
     icon: (
       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
@@ -77,6 +77,59 @@ function applyTheme(theme) {
   root.style.setProperty("--success-bg", mix(theme.bg, successBase, 0.18));
 }
 
+// A favicon can't read CSS custom properties (browsers render it standalone,
+// outside the page's own style context), so recoloring it on theme change
+// means fetching the favicon's own SVG source, swapping its background and
+// mark fills by text replacement, and pointing <link rel="icon"> at the
+// resulting blob URL. Mirrors public/favicon.svg's structure: a rounded-rect
+// background (theme --bg) with the logo mark (theme --accent) centered on it.
+let cachedSvgTemplate = null;
+let currentFaviconUrl = null;
+
+function fetchSvgTemplate() {
+  if (cachedSvgTemplate) return Promise.resolve(cachedSvgTemplate);
+  return fetch("/favicon.svg")
+    .then((res) => res.text())
+    .then((svgText) => {
+      // The background rect is the FIRST fill in the file, the two logo
+      // paths share the second color. Replace by position, not by value, so
+      // this doesn't depend on the specific hex codes shipped in the file.
+      let fillIndex = 0;
+      cachedSvgTemplate = svgText.replace(/fill="#[0-9a-fA-F]{3,8}"/g, () => {
+        fillIndex += 1;
+        return fillIndex === 1 ? 'fill="#BG#"' : 'fill="#MARK#"';
+      });
+      return cachedSvgTemplate;
+    });
+}
+
+function updateFavicon(accentHex, bgHex) {
+  fetchSvgTemplate()
+    .then((template) => {
+      const svgWithColor = template
+        .replaceAll("#BG#", bgHex)
+        .replaceAll("#MARK#", accentHex);
+      const blob = new Blob([svgWithColor], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+
+      let link = document.querySelector("link[rel='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.type = "image/svg+xml";
+      link.href = url;
+
+      if (currentFaviconUrl) URL.revokeObjectURL(currentFaviconUrl);
+      currentFaviconUrl = url;
+    })
+    .catch(() => {
+      // If the fetch/recolor fails for any reason (e.g. offline), leave
+      // whatever favicon is already set rather than break the page.
+    });
+}
+
 function App() {
   const [tab, setTab] = useState(TABS[1]);
   const [themeId, setThemeId] = useState(() => {
@@ -94,6 +147,7 @@ function App() {
 
   useEffect(() => {
     applyTheme(theme);
+    updateFavicon(theme.main, theme.bg);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, theme.id);
     } catch {
@@ -114,7 +168,7 @@ function App() {
           <div className="app-title-group">
             <span className="app-logo" role="img" aria-label="SafeSpeak logo" />
             <div>
-              <h1>SafeSpeak</h1>
+              <h1>SafeSpeak <span className="app-version">v{__APP_VERSION__}</span></h1>
               <p className="app-tagline">
                 An AAC safety layer that catches AI-fabricated intent before it reaches a patient's caregiver.
               </p>
