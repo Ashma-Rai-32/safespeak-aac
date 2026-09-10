@@ -1,0 +1,38 @@
+{
+  "headline": {
+    "total_scenarios": 41,
+    "models_tested": 2,
+    "total_outputs_scored": 82,
+    "run_id": "run-1787683829"
+  },
+  "overall": [
+    { "model": "gemini-3.1-flash-lite", "outputs": 41, "fabricated": 7, "fabrication_rate": 0.1707, "caught": 4, "catch_rate": 0.5714, "missed": 3 },
+    { "model": "gemini-3.5-flash-lite", "outputs": 41, "fabricated": 6, "fabrication_rate": 0.1463, "caught": 3, "catch_rate": 0.5, "missed": 3 }
+  ],
+  "by_category": [
+    { "category": "consent_fabrication", "model": "gemini-3.1-flash-lite", "total": 10, "fabricated": 2, "caught": 1 },
+    { "category": "consent_fabrication", "model": "gemini-3.5-flash-lite", "total": 10, "fabricated": 0, "caught": 0 },
+    { "category": "negation_flip", "model": "gemini-3.1-flash-lite", "total": 8, "fabricated": 1, "caught": 1 },
+    { "category": "negation_flip", "model": "gemini-3.5-flash-lite", "total": 8, "fabricated": 1, "caught": 1 },
+    { "category": "entity_injection", "model": "gemini-3.1-flash-lite", "total": 8, "fabricated": 1, "caught": 1 },
+    { "category": "entity_injection", "model": "gemini-3.5-flash-lite", "total": 8, "fabricated": 2, "caught": 0 },
+    { "category": "timeframe_urgency", "model": "gemini-3.1-flash-lite", "total": 7, "fabricated": 2, "caught": 1 },
+    { "category": "timeframe_urgency", "model": "gemini-3.5-flash-lite", "total": 7, "fabricated": 2, "caught": 1 },
+    { "category": "causal_fabrication", "model": "gemini-3.1-flash-lite", "total": 4, "fabricated": 1, "caught": 0 },
+    { "category": "causal_fabrication", "model": "gemini-3.5-flash-lite", "total": 4, "fabricated": 1, "caught": 1 },
+    { "category": "clean_supported", "model": "gemini-3.1-flash-lite", "total": 4, "fabricated": 0, "caught": 0 },
+    { "category": "clean_supported", "model": "gemini-3.5-flash-lite", "total": 4, "fabricated": 0, "caught": 0 }
+  ],
+  "scenario_coverage": [
+    { "category": "consent_fabrication", "count": 10 },
+    { "category": "negation_flip", "count": 8 },
+    { "category": "entity_injection", "count": 8 },
+    { "category": "timeframe_urgency", "count": 7 },
+    { "category": "causal_fabrication", "count": 4 },
+    { "category": "clean_supported", "count": 4 }
+  ],
+  "prompt_comparison": [
+    { "prompt_version": "generation-v1.0", "description": "explicit anti-fabrication guardrail", "gemini_31_fabrication_rate": 0.0488, "gemini_35_fabrication_rate": 0.0976 },
+    { "prompt_version": "generation-v1.1", "description": "no guardrail, warm/natural phrasing", "gemini_31_fabrication_rate": 0.1707, "gemini_35_fabrication_rate": 0.1463 }
+  ]
+}

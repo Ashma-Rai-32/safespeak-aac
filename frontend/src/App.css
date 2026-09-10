@@ -1,34 +1,39 @@
 /*
-  Styling reference: frontend/docs/Monkeytype _ .../monkeytype.DbILj5t4.css
-  (a real saved copy of Monkeytype's own compiled CSS). Values below are
-  pulled from that file, not guessed from the screenshot alone:
+  Styling sourced directly from a real saved copy of Monkeytype's own
+  compiled JS/CSS (frontend/docs/Monkeytype _ .../), not guessed from a
+  screenshot:
+
     --roundness: .5rem                          (their actual --roundness)
     font: "Roboto Mono", "Vazirharf", monospace (their actual shipped default)
     gap scale used throughout: .5em / .5rem / 1em / 1rem / 2rem
     buttons: border-radius: 100rem (pill-shaped), not rounded-rect
     cards/panels: border-radius: var(--roundness) i.e. .5rem
-    default theme colors found in the CSS: bg #191c24, sub-alt #111318,
-    sub #252937, text #e5e7ea, main #53b1fd (blue) -- we swap main/accent to
-    a gold tone to match the Serika Dark theme in the reference screenshot,
-    keeping their bg/sub/text values as-is.
 
-  This app commits to the Serika Dark look specifically (not a light/dark
-  toggle following system preference), since that's the exact theme being
-  matched -- dark is the only palette defined, not conditional.
+  All 31 theme palettes (exact hex values from Monkeytype's own theme
+  registry) live in src/data/themes.js. App.jsx applies the active theme's
+  colors as CSS custom properties on <html> at runtime (see applyTheme()),
+  since deriving --success/--danger-bg needs a small per-theme color blend
+  that's easier to compute in JS than to hand-write 31 CSS blocks for.
+  --success/--success-bg are NOT part of Monkeytype's theme system (they
+  only have one semantic "error" color) -- synthesized, not sourced.
+
+  The :root block below is only the pre-JS fallback (first paint before
+  App.jsx's effect runs), set to serika dark's real values so there's no
+  flash of wrong colors.
 */
 
 :root {
-  --bg: #191c24;
-  --surface: #1c1e27;
-  --sub-alt: #111318;
-  --text: #e5e7ea;
+  --bg: #323437;
+  --surface: #3c3e42;
+  --sub-alt: #2c2e31;
+  --text: #d1d0c5;
   --text-muted: #646669;
-  --border: #252937;
+  --border: #4a4c50;
   --accent: #e2b714;
   --danger: #ca4754;
-  --danger-bg: #291619;
+  --danger-bg: #3a2226;
   --success: #4ade80;
-  --success-bg: #11241a;
+  --success-bg: #223a2c;
   --roundness: .5rem;
   --mono: "Roboto Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -43,70 +48,221 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+  #app layout pattern below (grid-template-rows with named lines, sticky
+  header row) is adapted from Monkeytype's own #app rule in
+  monkeytype.DbILj5t4.css:
+    grid-template-rows:[top-start]auto[content-start]1fr[content-end]auto[top-end];
+    row-gap:2rem; width:100%; min-height:100vh;
+    padding-top:2rem; padding-bottom:2rem; overflow:hidden
+  We use 3 named rows (header / content / footer-less-for-now) instead of
+  their fuller nav+content+footer stack, same naming convention.
+
+  Responsive breakpoints below are real values pulled from that same CSS
+  file's actual @media rules (778px is their primary "coarse pointer" / touch
+  breakpoint, 425px and 355px are their tighter mobile steps).
+*/
+
+body {
+  min-height: 100vh;
+}
+
 .app-shell {
+  display: grid;
+  grid-template-rows: [top-start] auto [nav-start] auto [content-start] 1fr [content-end];
+  row-gap: 1.5rem;
   width: 100%;
-  max-width: 900px;
+  min-height: 100vh;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 0 1.5rem 3rem;
+}
+
+.app-header {
+  grid-row: top-start / nav-start;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem;
+  margin: 0 -1.5rem;
+}
+
+.app-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.app-title-group {
+  display: flex;
+  align-items: center;
+  gap: .875rem;
+}
+
+.app-logo {
+  display: inline-block;
+  width: 4rem;
+  height: 4em;
+  flex-shrink: 0;
+  margin-top: .1rem;
+  background-color: var(--accent);
+  -webkit-mask-image: url("/logo.svg");
+  mask-image: url("/logo.svg");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .app-header h1 {
-  margin: 0 0 .25rem;
-  font-size: 1.85rem;
+  margin: 0 0 .3rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text);
+  letter-spacing: -.01em;
+  text-align: left;
 }
+
+/* .app-header h1::before {
+  content: "> ";
+  color: var(--accent);
+} */
 
 .app-tagline {
   color: var(--text-muted);
-  margin: 0 0 2rem;
-  font-size: .9rem;
+  margin: 0;
+  font-size: .85rem;
+  max-width: 52ch;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-shrink: 0;
+}
+
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  color: var(--text-muted);
+  transition: color .12s ease, background .12s ease;
+}
+
+.social-link:hover {
+  color: var(--accent);
+  background: var(--sub-alt);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  background: var(--sub-alt);
+  border: 1px solid var(--border);
+  border-radius: 100rem;
+  padding: .5rem 1rem .5rem .65rem;
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: border-color .12s ease, color .12s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.theme-toggle-dot {
+  width: .6rem;
+  height: .6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .tab-bar {
+  grid-row: nav-start / content-start;
   display: flex;
   gap: .25rem;
-  margin-bottom: 2rem;
-  background: var(--sub-alt);
-  border-radius: var(--roundness);
-  padding: .25rem;
-  width: fit-content;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .tab-button {
   background: none;
   border: none;
-  border-radius: calc(var(--roundness) / 2);
-  padding: .5rem 1rem;
+  border-bottom: 2px solid transparent;
+  padding: .7rem 1.1rem;
+  margin-bottom: -1px;
   font-family: var(--mono);
   font-size: .85rem;
   color: var(--text-muted);
   cursor: pointer;
+  transition: color .12s ease;
+}
+
+.tab-button:hover {
+  color: var(--text);
 }
 
 .tab-button.tab-active {
-  color: var(--bg);
-  background: var(--accent);
+  color: var(--accent);
+  border-bottom-color: var(--accent);
   font-weight: 600;
+}
+
+.app-main {
+  grid-row: content-start / content-end;
+  display: block;
+  min-width: 0;
 }
 
 .panel {
   background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--roundness);
-  padding: 1.5rem;
+  padding: 1.75rem;
 }
 
 .panel h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
+  margin: 0 0 .35rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
 }
 
 .panel-subtitle {
   color: var(--text-muted);
   font-size: .85rem;
-  margin-top: -.5rem;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+  text-align: left;
 }
 
 .scenario-picker-row {
@@ -146,16 +302,20 @@ body {
   justify-content: space-between;
   gap: .75rem;
   background: var(--sub-alt);
+  border: 1px solid var(--border);
   border-radius: calc(var(--roundness) / 2);
   padding: .875rem 1rem;
   min-height: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .output-text {
   font-size: 1.05rem;
   font-weight: 500;
   color: var(--text);
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .output-actions {
@@ -212,27 +372,32 @@ body {
 
 .result-card {
   margin-top: 1.25rem;
-  border-radius: var(--roundness);
-  padding: 1rem;
+  border-radius: calc(var(--roundness) / 2);
+  padding: 1.1rem 1.25rem;
+  border-left: 3px solid transparent;
 }
 
 .result-passed {
   background: var(--success-bg);
+  border-left-color: var(--success);
 }
 
 .result-blocked {
   background: var(--danger-bg);
+  border-left-color: var(--danger);
 }
 
 .result-unknown {
   background: var(--sub-alt);
   color: var(--text-muted);
+  border-left-color: var(--border);
 }
 
 .result-loading {
   background: var(--sub-alt);
   color: var(--text-muted);
   font-style: italic;
+  border-left-color: var(--border);
 }
 
 .live-badge {
@@ -387,4 +552,417 @@ body {
 .rate-warn {
   color: var(--danger);
   font-weight: 700;
+}
+
+/*
+  Responsive breakpoints below reuse Monkeytype's own real breakpoint values
+  from monkeytype.DbILj5t4.css (778px is their primary touch/coarse-pointer
+  breakpoint, 425px their tighter mobile step), not arbitrary numbers.
+*/
+
+@media only screen and (width <= 778px) {
+  .app-shell {
+    padding: 0 1rem 2.5rem;
+  }
+
+  .app-header {
+    padding: 1.25rem 1rem;
+    margin: 0 -1rem;
+  }
+
+  .app-header-row {
+    gap: 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .app-tagline {
+    font-size: .8rem;
+  }
+
+  .panel {
+    padding: 1.25rem;
+  }
+
+  .tab-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-button {
+    padding: .65rem .85rem;
+    white-space: nowrap;
+  }
+
+  .word-grid {
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: .4rem;
+  }
+
+  .word-tile {
+    padding: .7rem .4rem;
+    font-size: .74rem;
+  }
+
+  .output-bar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .output-actions {
+    width: 100%;
+  }
+
+  .output-actions button {
+    flex: 1;
+  }
+
+  .result-header {
+    flex-wrap: wrap;
+    gap: .4rem;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .confirm-button {
+    min-width: 0;
+  }
+
+  .metrics-table {
+    font-size: .78rem;
+  }
+
+  .metrics-table th,
+  .metrics-table td {
+    padding: .5rem .6rem;
+  }
+}
+
+/* Documentation / findings page */
+
+.docs-panel {
+  max-width: 100%;
+  text-align: left;
+}
+
+.docs-hero {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.docs-kicker {
+  color: var(--accent);
+  font-size: .75rem;
+  text-transform: lowercase;
+  letter-spacing: .05em;
+  margin: 0 0 .5rem;
+  text-align: left;
+}
+
+.docs-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+  line-height: 1.35;
+  text-align: left;
+  width: 100%;
+}
+
+.docs-lede {
+  color: var(--text-muted);
+  font-size: .9rem;
+  line-height: 1.6;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-block {
+  background: var(--sub-alt);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--roundness) / 2);
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: .72rem;
+  color: var(--text-muted);
+  margin-top: .3rem;
+}
+
+.docs-section {
+  margin-bottom: 2.25rem;
+  text-align: left;
+}
+
+.docs-section h3 {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 .75rem;
+  text-align: left;
+}
+
+.docs-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--sub-alt);
+  color: var(--accent);
+  font-size: .8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.docs-section p {
+  color: var(--text);
+  font-size: .88rem;
+  line-height: 1.65;
+  margin: 0 0 .75rem;
+  width: 100%;
+  text-align: left;
+}
+
+.docs-caption {
+  color: var(--text-muted) !important;
+  font-size: .8rem !important;
+  text-align: left;
+}
+
+.docs-note {
+  color: var(--text-muted) !important;
+  font-size: .8rem !important;
+  font-style: italic;
+  border-left: 2px solid var(--border);
+  padding-left: .75rem;
+  margin-top: 1rem !important;
+  text-align: left;
+}
+
+.docs-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text);
+  font-size: .85rem;
+  line-height: 1.65;
+  text-align: left;
+}
+
+.docs-list li {
+  margin-bottom: .5rem;
+  width: 100%;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 12rem 1fr 3.5rem;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .6rem;
+}
+
+.bar-label {
+  font-size: .78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  height: .55rem;
+  background: var(--sub-alt);
+  border-radius: 100rem;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 100rem;
+  transition: width .3s ease;
+}
+
+.bar-value {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+}
+
+.prompt-compare-row {
+  margin-bottom: 1.1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.prompt-compare-row:last-child {
+  border-bottom: none;
+}
+
+.prompt-compare-label {
+  display: block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: .6rem;
+}
+
+.example-card {
+  background: var(--sub-alt);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--roundness) / 2);
+  padding: 1rem 1.1rem;
+  margin-bottom: .5rem;
+}
+
+.example-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: .75rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+
+.example-row:last-child {
+  border-bottom: none;
+}
+
+.example-tag {
+  font-size: .72rem;
+  color: var(--text-muted);
+  text-transform: lowercase;
+}
+
+.example-value {
+  font-size: .85rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.example-row-flag .example-value {
+  color: var(--danger);
+}
+
+.example-row-caught .example-value {
+  color: var(--success);
+}
+
+.category-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+  font-family: var(--mono);
+}
+
+.category-table th,
+.category-table td {
+  text-align: left;
+  padding: .55rem .7rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.category-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: .7rem;
+  text-transform: lowercase;
+}
+
+.cell-good {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.cell-warn {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@media only screen and (width <= 778px) {
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bar-row {
+    grid-template-columns: 1fr;
+    gap: .3rem;
+  }
+
+  .bar-label {
+    white-space: normal;
+  }
+
+  .bar-value {
+    text-align: left;
+  }
+
+  .docs-title {
+    font-size: 1.2rem;
+  }
+
+  .example-row {
+    grid-template-columns: 1fr;
+    gap: .2rem;
+  }
+}
+
+@media only screen and (width <= 425px) {
+  .app-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .theme-toggle {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .scenario-picker-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .word-grid {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  }
 }
